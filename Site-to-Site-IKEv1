@@ -1,0 +1,32 @@
+Router_A
+en
+conf t
+hostname Router_A
+int g0/0
+ip add 30.0.0.2 255.255.255.0
+no sh
+int g0/1
+ip add 10.1.1.254 255.255.255.0
+no sh
+exi
+ip route 0.0.0.0 0.0.0.0 30.0.0.1
+--------------------------------------
+crypto isakmp policy 10
+ encr aes 256
+ hash sha256
+ authentication pre-share
+ group 2
+crypto isakmp key ccie2022 address 40.0.0.2       
+crypto ipsec transform-set TS esp-aes 256 esp-sha256-hmac 
+ mode tunnel
+crypto map CM-Site 10 ipsec-isakmp 
+ set peer 40.0.0.2
+ set transform-set TS 
+ match address Site
+ reverse-route static
+int g0/0
+ crypto map CM-Site
+ip access-list extended Site
+ permit ip 10.1.1.0 0.0.0.255 10.2.2.0 0.0.0.255
+
+=================================================
