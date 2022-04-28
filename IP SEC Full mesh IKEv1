@@ -1,1 +1,83 @@
+!R-A
+crypto isakmp pol 10
+encr aes
+hash sha256
+auth pre
+gr 2
+!
+cryp isakmp key cisco add 40.0.0.2
+cryp isakmp key cisco add 50.0.0.2
 
+ip access-list ext Site_B
+per ip 10.1.1.0 0.0.0.255 10.2.2.0 0.0.0.255
+ip access-list ext Site_c
+per ip 10.1.1.0 0.0.0.255 10.3.3.0 0.0.0.255
+crypto ipsec tra TSET esp-aes 256 esp-sha256-hmac
+crypto map VPN 10 ipsec-isakmp
+set peer 40.0.0.2
+set transform-set TSET
+match add Site_B
+crypto map VPN 50 ipsec-isakmp
+set peer 50.0.0.2
+set transform-set TSET
+match add Site_c
+
+!
+int g0/0
+crypto map VPN
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!R-B
+crypto isakmp pol 10
+encr aes
+hash sha256
+auth pre
+gr 2
+!
+cryp isakmp key cisco add 30.0.0.2
+cryp isakmp key cisco add 50.0.0.2
+!
+ip access-list ext Site_A
+per ip 10.2.2.0 0.0.0.255 10.1.1.0 0.0.0.255
+ip access-list ext Site_C
+per ip 10.2.2.0 0.0.0.255 10.3.3.0 0.0.0.255
+!
+crypto ipsec tra TSET esp-aes 256 esp-sha256-hmac
+crypto map VPN 30 ipsec-isakmp
+set peer 30.0.0.2
+set transform-set TSET
+match add Site_A
+crypto map VPN 40 ipsec-isakmp
+set peer 50.0.0.2
+set transform-set TSET
+match add Site_C
+int g0/0
+crypto map VPN
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!R-C
+crypto isakmp pol 10
+encr aes
+hash sha256
+auth pre
+gr 2
+!
+cryp isakmp key cisco add 40.0.0.2
+cryp isakmp key cisco add 30.0.0.2
+!
+ip access-list ext Site_B
+per ip 10.3.3.0 0.0.0.255 10.2.2.0 0.0.0.255
+ip access-list ext Site_A
+per ip 10.3.3.0 0.0.0.255 10.1.1.0 0.0.0.255
+!
+crypto ipsec tra TSET esp-aes 256 esp-sha256-hmac
+crypto map VPN 40 ipsec-isakmp
+set peer 40.0.0.2
+set transform-set TSET
+match add Site_B
+crypto map VPN 30 ipsec-isakmp
+set peer 30.0.0.2
+set transform-set TSET
+match add Site_A
+
+int g0/0
+crypto map VPN
+!!!!!!!!!!!!!!!!!!!!!!!!!
