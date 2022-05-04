@@ -1,0 +1,109 @@
+!IKEv2 Multisite
+!R1
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+conf t
+!
+crypto ikev2 keyring Kr-1
+peer Site-B
+ address 40.0.0.2
+ pre-shared-key cisco123
+!
+crypto ikev2 proposal Proposal
+encr aes-cbc-256
+integrity sha512
+group 24
+!
+crypto ikev2 policy POLICY
+proposal Proposal
+!
+crypto ikev2 profile PROF
+ match ident remote add 40.0.0.2 255.255.255.255
+ authen remote pre-sha
+ authen local pre-sha
+ keyring local Kr-1
+!
+ip access-list extended ACL_Site_B
+per ip 10.1.1.0 0.0.0.255 10.2.2.0 0.0.0.255
+!
+crypto ipsec trans TSET esp-aes 256 esp-sha512-hmac
+
+!
+
+crypto map CMAP 10 ipsec-isakmp
+set peer 40.0.0.2
+set trans TSET
+set pfs group 24
+set ikev2-profile PROF
+match address ACL_Site_B
+int g0/0 
+crypto map CMAP
+===============================================
+crypto ikev2 keyring Kr-1
+peer Site-A
+ address 30.0.0.2
+ pre-shared-key cisco123
+peer Site-C
+ address 50.0.0.2
+ pre-shared-key cisco123
+!
+crypto ikev2 proposal Proposal
+encr aes-cbc-256
+integrity sha512
+group 24
+!
+crypto ikev2 policy POLICY
+proposal Proposal
+!
+crypto ikev2 profile PROF
+ match ident remote add 30.0.0.2 255.255.255.255
+ match ident remote add 50.0.0.2 255.255.255.255
+ authen remote pre-sha
+ authen local pre-sha
+ keyring local Kr-1
+!
+ip access-list extended ACL_Site_A_C
+per ip 10.2.2.0 0.0.0.255 10.1.1.0 0.0.0.255
+per ip 10.2.2.0 0.0.0.255 10.3.3.0 0.0.0.255
+!
+crypto ipsec trans TSET esp-aes 256 esp-sha512-hmac
+
+!
+ 
+int g0/0 
+crypto map CMAP
+============================
+============================
+conf t
+!
+crypto ikev2 keyring Kr-1
+peer Site-B
+ address 40.0.0.2
+ pre-shared-key cisco123
+!
+crypto ikev2 proposal Proposal
+encr aes-cbc-256
+integrity sha512
+group 24
+!
+crypto ikev2 policy POLICY
+proposal Proposal
+!
+crypto ikev2 profile PROF
+ match ident remote add 40.0.0.2 255.255.255.255
+ authen remote pre-sha
+ authen local pre-sha
+ keyring local Kr-1
+!
+ip access-list extended ACL_Site_B
+per ip 10.3.3.0 0.0.0.255 10.2.2.0 0.0.0.255
+!
+crypto ipsec trans TSET esp-aes 256 esp-sha512-hmac
+!
+crypto map CMAP 10 ipsec-isakmp
+set peer 40.0.0.2
+set trans TSET
+set pfs group24
+set ikev2-profile PROF
+match address ACL_Site_B
+int g0/0 
+crypto map CMAP
